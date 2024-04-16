@@ -6,11 +6,12 @@ import java.io.Serializable;
 public class Advertisement implements Serializable {
     private String content;
     private String placement;
-    private int size; // Assuming this could be an arbitrary unit representing the size of the ad
-    private String advertiserName; // The name of the advertiser
-    private int issueNumber; // The issue number of the magazine where the ad will be placed
-    private double price; // The agreed price for the advertisement
+    private int size;
+    private String advertiserName;
+    private int issueNumber;
+    private double price;
 
+    // Constructors
     public Advertisement(String advertiserName, String content, String placement, int size, int issueNumber,
             double price) {
         this.advertiserName = advertiserName;

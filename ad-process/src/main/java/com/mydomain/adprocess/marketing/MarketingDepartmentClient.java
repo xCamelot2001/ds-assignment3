@@ -1,20 +1,37 @@
-// Client for the RMI service in marketing
+// Client side of editing socket communication
 package com.mydomain.adprocess.marketing;
 
-import com.mydomain.adprocess.editing.IEditingService;
-import java.rmi.Naming;
+import java.net.Socket;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class MarketingDepartmentClient {
 
     public static void main(String[] args) {
-        try {
-            IEditingService service = (IEditingService) Naming.lookup("rmi://localhost/EditingService");
-            // Suppose we create a string that represents advertisement details
-            String advertisementDetails = "New Ad Content";
-            String response = service.processAdvertisement(advertisementDetails);
-            System.out.println("Editing Department response: " + response);
+        String serverName = "localhost";
+        int port = 12345;
+        try (Socket socket = new Socket(serverName, port);
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream())) {
+
+            // Create advertisement instances
+            Advertisement ad1 = new Advertisement("Advertiser A", "Buy the best product!", "Back cover", 2, 1001,
+                    500.00);
+            Advertisement ad2 = new Advertisement("Advertiser B", "Sale - Everything must go!", "Page 2", 1, 1002,
+                    300.00);
+
+            // Send advertisements
+            output.writeObject(ad1);
+            // Wait for response and process it
+            Advertisement responseAd1 = (Advertisement) input.readObject();
+            System.out.println("Response for Ad1: " + responseAd1.getContent());
+
+            output.writeObject(ad2);
+            // Wait for response and process it
+            Advertisement responseAd2 = (Advertisement) input.readObject();
+            System.out.println("Response for Ad2: " + responseAd2.getContent());
+
         } catch (Exception e) {
-            System.out.println("Client exception: " + e.getMessage());
             e.printStackTrace();
         }
     }

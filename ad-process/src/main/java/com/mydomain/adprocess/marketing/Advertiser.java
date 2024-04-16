@@ -3,7 +3,7 @@ package com.mydomain.adprocess.marketing;
 
 public class Advertiser {
     private String name;
-    private String contactDetails; // Added for more details about the advertiser
+    private String contactDetails;
 
     public Advertiser(String name, String contactDetails) {
         this.name = name;
@@ -12,8 +12,6 @@ public class Advertiser {
 
     public Advertisement createAdvertisement(String content, String placement, int size, int issueNumber,
             double price) {
-        // The advertisement is created with all necessary details, including those
-        // specific to the issue of the magazine and pricing.
         return new Advertisement(this.name, content, placement, size, issueNumber, price);
     }
 
@@ -34,8 +32,5 @@ public class Advertiser {
         this.contactDetails = contactDetails;
     }
 
-    // You may add additional behaviors and properties that are relevant to an
-    // advertiser here.
-    // For instance, you could add methods for managing advertisements, tracking
-    // payments, etc.
+    // You may add additional behaviors and properties that are relevant to an advertiser here.
 }
