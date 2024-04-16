@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AccountingServer {
+public class AccountingDepartment{
 
     private static final int THREAD_POOL_SIZE = 10;
 
