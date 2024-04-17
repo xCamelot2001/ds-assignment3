@@ -1,47 +1,51 @@
 package com.mydomain.adprocess.marketing;
 
-import com.mydomain.adprocess.messaging.MessageProducer;
-import com.mydomain.adprocess.messaging.AdDetails;
-
-import java.util.Date;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class MarketingDepartmentClient {
 
     public static void main(String[] args) {
-        // Create advertisement instances
-        Advertisement ad1 = new Advertisement("Advertiser A", "Buy the best product!", "Back cover", 2, 1001, 500.00);
-        Advertisement ad2 = new Advertisement("Advertiser B", "Sale - Everything must go!", "Page 2", 1, 1002, 300.00);
+        // Assuming you have the host and port of the EditingDepartmentServer
+        String editingDepartmentHost = "localhost";
+        int editingDepartmentPort = 12345;
 
-        // Use the MessageProducer to send advertisements asynchronously
-        MessageProducer producer = new MessageProducer();
-        try {
-            // Convert Advertisement to AdDetails
-            AdDetails details1 = convertToAdDetails(ad1);
-            AdDetails details2 = convertToAdDetails(ad2);
+        try (Socket socket = new Socket(editingDepartmentHost, editingDepartmentPort);
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
+        
+            // Prompt the advertiser to create an advertisement
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter advertiser name:");
+            String advertiserName = scanner.nextLine();
+            System.out.println("Enter advertisement message:");
+            String message = scanner.nextLine();
+            System.out.println("Enter advertisement position:");
+            String position = scanner.nextLine();
+            System.out.println("Enter advertisement ID:");
+            int adId = scanner.nextInt();
+            System.out.println("Enter advertisement cost:");
+            double cost = scanner.nextDouble();
+            
+            // Create the advertisement instance
+            Advertisement ad = new Advertisement(advertiserName, message, position, adId, cost);
+            
+            // Send the advertisement to Editing Department Server
+            out.writeObject(ad);
+            System.out.println("Advertisement sent to Editing Department: " + ad);
+            
+            // close the scanner
+            scanner.close();
 
-            producer.sendAdDetails(details1);
-            producer.sendAdDetails(details2);
-            System.out.println("Advertisements sent asynchronously via RabbitMQ");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Failed to send advertisements: " + e.getMessage());
+        } catch (UnknownHostException e) {
+            System.err.println("Host unknown: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("I/O Error: " + e.getMessage());
         }
     }
 
-    private static AdDetails convertToAdDetails(Advertisement ad) {
-        // Assuming there's an appropriate constructor or method to create AdDetails from Advertisement
-        return new AdDetails(
-            // You'll need to generate or assign a unique ID for each ad
-            // For example purposes, let's just use the advertiser's name and issue number
-            ad.getAdvertiserName() + "-" + ad.getIssueNumber(),
-            ad.getAdvertiserName(),
-            new Date(), // Assume the scheduled date is now for example purposes
-            ad.getContent(),
-            ad.getSize(),
-            ad.getPlacement(),
-            false, // Payment not complete by default
-            "", // URL can be empty or set as needed
-            "Pending" // Initial status
-        );
-    }
+    // prompt the advertiser to create an advertisement
+    
 }

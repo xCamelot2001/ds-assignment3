@@ -15,7 +15,7 @@ public class AccountingDepartment{
 
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-        int port = 12346; // The port for the accounting server
+        int port = 12346; // The port for the accounting server‘s socket
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Accounting Socket Server is running on port " + port);

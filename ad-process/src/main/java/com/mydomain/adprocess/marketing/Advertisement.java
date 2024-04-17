@@ -6,18 +6,16 @@ import java.io.Serializable;
 public class Advertisement implements Serializable {
     private String content;
     private String placement;
-    private int size;
     private String advertiserName;
     private int issueNumber;
     private double price;
 
     // Constructors
-    public Advertisement(String advertiserName, String content, String placement, int size, int issueNumber,
+    public Advertisement(String advertiserName, String content, String placement, int issueNumber,
             double price) {
         this.advertiserName = advertiserName;
         this.content = content;
         this.placement = placement;
-        this.size = size;
         this.issueNumber = issueNumber;
         this.price = price;
     }
@@ -33,10 +31,6 @@ public class Advertisement implements Serializable {
 
     public String getPlacement() {
         return placement;
-    }
-
-    public int getSize() {
-        return size;
     }
 
     public int getIssueNumber() {
@@ -60,10 +54,6 @@ public class Advertisement implements Serializable {
         this.placement = placement;
     }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
-
     public void setIssueNumber(int issueNumber) {
         this.issueNumber = issueNumber;
     }
@@ -79,7 +69,6 @@ public class Advertisement implements Serializable {
                 "advertiserName='" + advertiserName + '\'' +
                 ", content='" + content + '\'' +
                 ", placement='" + placement + '\'' +
-                ", size=" + size +
                 ", issueNumber=" + issueNumber +
                 ", price=" + price +
                 '}';

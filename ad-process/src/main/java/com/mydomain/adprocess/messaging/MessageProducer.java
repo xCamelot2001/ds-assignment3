@@ -21,7 +21,7 @@ public class MessageProducer {
                 Channel channel = connection.createChannel()) {
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);
             channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-            System.out.println(" [x] Sent ad details: " + message);
+            System.out.println(" [x] Sent ad details: " + adDetails);
         }
     }
 

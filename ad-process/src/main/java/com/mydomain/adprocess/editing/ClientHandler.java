@@ -1,15 +1,21 @@
 package com.mydomain.adprocess.editing;
 
 import com.mydomain.adprocess.marketing.Advertisement;
-
-import java.io.*;
+import com.mydomain.adprocess.messaging.MessageProducer;
+import com.mydomain.adprocess.messaging.AdDetails;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Date;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
+    private final MessageProducer messageProducer;
 
-    public ClientHandler(Socket socket) {
+    public ClientHandler(Socket socket, MessageProducer producer) {
         this.clientSocket = socket;
+        this.messageProducer = producer;
     }
 
     @Override
@@ -22,12 +28,12 @@ public class ClientHandler implements Runnable {
             // Process the advertisement
             Editor editor = new Editor();
             Advertisement processedAd = editor.processAdvertisement(advertisement);
-            
-            output.writeObject(processedAd);
-            System.out.println("Processed advertisement for: " + processedAd.getAdvertiserName());
 
             // Send processed advertisement to AccountingServer
             sendToAccountingServer(processedAd);
+
+            // After sending to the Accounting Server, now we send it to the message queue
+            sendToMessageQueue(processedAd);
 
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error handling client #" + this.hashCode() + ": " + e.getMessage());
@@ -55,6 +61,28 @@ public class ClientHandler implements Runnable {
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error communicating with Accounting Server: " + e.getMessage());
             // Here you could implement a retry mechanism or queue the message for later processing.
+        }
+    }
+
+    private void sendToMessageQueue(Advertisement processedAd) {
+        // Create AdDetails from the processed advertisement
+        AdDetails adDetails = new AdDetails(
+            processedAd.getAdvertiserName() + "-" + processedAd.getIssueNumber(),
+            processedAd.getAdvertiserName(),
+            new Date(), // Use the current date for simplicity
+            processedAd.getContent(),
+            processedAd.getPlacement(),
+            false, // Payment status, false for not completed
+            "", // Graphics URL (should be set appropriately)
+            "Pending" // Status of the advertisement
+        );
+
+        try {
+            // Send AdDetails to the message queue
+            messageProducer.sendAdDetails(adDetails);
+            System.out.println("Processed ad details sent to Message Queue.");
+        } catch (Exception e) {
+            System.err.println("Error sending ad details to message queue: " + e.getMessage());
         }
     }
 }

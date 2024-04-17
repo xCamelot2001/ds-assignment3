@@ -8,21 +8,22 @@ public class AdDetails {
     private String advertiserName; // Name of the advertiser
     private Date scheduledDate; // When the ad is scheduled to appear
     private String adContent; // Content of the advertisement
-    private int adSize; // Size of the ad, could be an enum or int representing size categories
     private String placementPreference; // Preferred placement in the magazine
     private boolean isPaymentComplete; // Status of payment for the ad
     private String graphicsUrl; // URL or path to the associated graphics for the ad
     private String status; // Current status of the ad in the workflow
 
+    // Default constructor
+    public AdDetails() {}
+
     // Constructors
     public AdDetails(String adId, String advertiserName, Date scheduledDate, String adContent,
-            int adSize, String placementPreference, boolean isPaymentComplete,
+            String placementPreference, boolean isPaymentComplete,
             String graphicsUrl, String status) {
         this.adId = adId;
         this.advertiserName = advertiserName;
         this.scheduledDate = scheduledDate;
         this.adContent = adContent;
-        this.adSize = adSize;
         this.placementPreference = placementPreference;
         this.isPaymentComplete = isPaymentComplete;
         this.graphicsUrl = graphicsUrl;
@@ -60,14 +61,6 @@ public class AdDetails {
 
     public void setAdContent(String adContent) {
         this.adContent = adContent;
-    }
-
-    public int getAdSize() {
-        return adSize;
-    }
-
-    public void setAdSize(int adSize) {
-        this.adSize = adSize;
     }
 
     public String getPlacementPreference() {

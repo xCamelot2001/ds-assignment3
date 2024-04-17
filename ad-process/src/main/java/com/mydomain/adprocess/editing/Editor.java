@@ -2,6 +2,9 @@
 package com.mydomain.adprocess.editing;
 
 import com.mydomain.adprocess.marketing.Advertisement;
+import java.util.Scanner;
+
+
 
 public class Editor {
 
@@ -9,6 +12,36 @@ public class Editor {
     public String reviewContent(Advertisement ad) {
         // Placeholder for actual content review logic
         String content = ad.getContent();
+        
+        // Create a Scanner object to read input from the console
+        Scanner scanner = new Scanner(System.in);
+        
+        // Display the content to the editor
+        System.out.println("Advertisement Content:");
+        System.out.println(content);
+        
+        // Prompt the editor for review
+        System.out.println("Please review the content and enter 'y' to confirm or 'n' to make changes:");
+        String input = scanner.nextLine();
+        
+        // Check the editor's input
+        if (input.equalsIgnoreCase("y")) {
+            // Content is approved, no changes needed
+            System.out.println("Content reviewed and approved.");
+        } else if (input.equalsIgnoreCase("n")) {
+            // Content needs changes
+            System.out.println("Please enter the updated content:");
+            String updatedContent = scanner.nextLine();
+            content = updatedContent;
+            System.out.println("Content updated.");
+        } else {
+            // Invalid input
+            System.out.println("Invalid input. Content not changed.");
+        }
+
+        // Close the scanner
+        scanner.close();
+        
         // Simulate content editing by appending a review note
         return content + "\n\n[Editor's note: Content reviewed and approved.]";
     }

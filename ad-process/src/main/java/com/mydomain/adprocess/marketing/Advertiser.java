@@ -10,9 +10,9 @@ public class Advertiser {
         this.contactDetails = contactDetails;
     }
 
-    public Advertisement createAdvertisement(String content, String placement, int size, int issueNumber,
+    public Advertisement createAdvertisement(String content, String placement, int issueNumber,
             double price) {
-        return new Advertisement(this.name, content, placement, size, issueNumber, price);
+        return new Advertisement(this.name, content, placement, issueNumber, price);
     }
 
     // Getters and setters

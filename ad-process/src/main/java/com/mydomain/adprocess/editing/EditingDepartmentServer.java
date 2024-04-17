@@ -6,23 +6,25 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import com.mydomain.adprocess.messaging.MessageConsumer;
+import com.mydomain.adprocess.messaging.MessageProducer;
 
 public class EditingDepartmentServer {
     private static final int THREAD_POOL_SIZE = 10; // Number of threads in the pool
-    public static final int EDITING_PORT = 12345; // The port for the editing department server
-    public static final int ACCOUNTING_PORT = 12346; // The port for the accounting server
+    public static final int EDITING_PORT = 12345; // Port for the Editing Server
+    public static final int ACCOUNTING_PORT = 12346; // Port for the Accounting Server
 
-    // Reconnection delay constants
-    private static final int INITIAL_RECONNECT_DELAY = 1000; // 1 second
+    private static final int INITIAL_RECONNECT_DELAY = 1000; // Initial delay in milliseconds
     private static final int MAX_RECONNECT_ATTEMPTS = 5; // Maximum number of reconnection attempts
 
     private static MessageConsumer consumer;
+    private static MessageProducer producer;
     private static Thread messageConsumerThread;
-    
+
     public static void main(String[] args) {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-        
-        // Start the message consumer in its own thread
+        producer = new MessageProducer(); // Producer for sending messages to the queue
+
+        // Start the message consumer in its own thread for asynchronous operations
         consumer = new MessageConsumer();
         messageConsumerThread = new Thread(() -> {
             try {
@@ -32,9 +34,8 @@ public class EditingDepartmentServer {
                 e.printStackTrace();
             }
         });
+        messageConsumerThread.start();
 
-        messageConsumerThread.start(); // Start the consumer thread
-        
         boolean running = true;
         int port = EDITING_PORT;
 
@@ -44,7 +45,8 @@ public class EditingDepartmentServer {
 
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
-                    executor.execute(new ClientHandler(clientSocket));
+                    ClientHandler clientHandler = new ClientHandler(clientSocket, producer);
+                    executor.execute(clientHandler);
                 }
             } catch (IOException e) {
                 running = handleServerSocketFailure(e, port);
@@ -63,7 +65,7 @@ public class EditingDepartmentServer {
             executor.shutdownNow(); // Stop all currently executing tasks
         }));
 
-        executor.shutdown(); // If while loop is exited, shutdown executor
+        executor.shutdown();
     }
 
     private static boolean handleServerSocketFailure(IOException exception, int port) {

@@ -22,7 +22,7 @@ public class MessageConsumer {
         channel = connection.createChannel();
 
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-        System.out.println(" [*] Waiting for ad details. To exit press CTRL+C");
+        System.out.println(" [*] Waiting for ad details");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             if (shouldConsume) { // Check if we should still be consuming messages
@@ -30,7 +30,7 @@ public class MessageConsumer {
                 AdDetails adDetails = deserializeAdDetails(message);
                 // Process the ad details
                 processAdDetails(adDetails);
-                System.out.println(" [x] Received ad details: " + message);
+                System.out.println(" [x] Received ad details: " + adDetails);
             }
         };
 
