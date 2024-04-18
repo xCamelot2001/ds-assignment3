@@ -1,45 +1,41 @@
-// Logic for editing advertisements
 package com.mydomain.adprocess.editing;
 
 import com.mydomain.adprocess.marketing.Advertisement;
 import java.util.Scanner;
 
-
-
 public class Editor {
+
+    private static final Object lock = new Object();  // Lock object for synchronization
 
     // This method simulates the action of an editor reviewing an advertisement's content
     public String reviewContent(Advertisement ad) {
-        // Placeholder for actual content review logic
         String content = ad.getContent();
-        
-        // Create a Scanner object to read input from the console
-        @SuppressWarnings("resource")
-        Scanner scanner = new Scanner(System.in);
-        
-        // Display the content to the editor
-        System.out.println("Advertisement Content:");
-        System.out.println(content);
-        
-        // Prompt the editor for review
-        System.out.println("Please review the content and enter 'y' to confirm or 'n' to make changes:");
-        String input = scanner.nextLine();
-        
-        // Check the editor's input
-        if (input.equalsIgnoreCase("y")) {
-            // Content is approved, no changes needed
-            System.out.println("Content reviewed and approved.");
-        } else if (input.equalsIgnoreCase("n")) {
-            // Content needs changes
-            System.out.println("Please enter the updated content:");
-            String updatedContent = scanner.nextLine();
-            content = updatedContent;
-            System.out.println("Content updated.");
-        } else {
-            // Invalid input
-            System.out.println("Invalid input. Content not changed.");
+
+        synchronized(lock) {  // Synchronize access to System.in
+            Scanner scanner = new Scanner(System.in);
+            // Display the content to the editor
+            System.out.println("Advertisement Content:");
+            System.out.println(content);
+
+            // Prompt the editor for review
+            System.out.println("Please review the content and enter 'y' to confirm or 'n' to make changes:");
+            String input = scanner.nextLine();
+
+            // Check the editor's input
+            if ("y".equalsIgnoreCase(input)) {
+                // Content is approved, no changes needed
+                System.out.println("Content reviewed and approved.");
+            } else if ("n".equalsIgnoreCase(input)) {
+                // Content needs changes
+                System.out.println("Please enter the updated content:");
+                content = scanner.nextLine();  // Get updated content within synchronized block
+                System.out.println("Content updated.");
+            } else {
+                // Invalid input
+                System.out.println("Invalid input. Content not changed.");
+            }
         }
-        
+
         // Simulate content editing by appending a review note
         return content + "\n\n[Editor's note: Content reviewed and approved.]";
     }
@@ -54,7 +50,6 @@ public class Editor {
 
     // Method to process the entire advertisement
     public Advertisement processAdvertisement(Advertisement ad) {
-
         String reviewedContent = reviewContent(ad);
         String adjustedPlacement = adjustPlacement(ad);
 
@@ -64,6 +59,4 @@ public class Editor {
 
         return ad;
     }
-
-    // Additional methods could be implemented here, such as coordinating with other departments for final approval
 }
