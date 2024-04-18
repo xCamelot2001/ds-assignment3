@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MessageProperties;
 
 public class MessageProducer {
     private final static String QUEUE_NAME = "advertisement_queue";
@@ -20,7 +21,7 @@ public class MessageProducer {
         try (Connection connection = factory.newConnection();
                 Channel channel = connection.createChannel()) {
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-            channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+            channel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
             System.out.println(" [x] Sent ad details: " + adDetails);
         }
     }

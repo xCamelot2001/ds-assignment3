@@ -14,6 +14,7 @@ public class Editor {
         String content = ad.getContent();
         
         // Create a Scanner object to read input from the console
+        @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
         
         // Display the content to the editor
@@ -38,9 +39,6 @@ public class Editor {
             // Invalid input
             System.out.println("Invalid input. Content not changed.");
         }
-
-        // Close the scanner
-        scanner.close();
         
         // Simulate content editing by appending a review note
         return content + "\n\n[Editor's note: Content reviewed and approved.]";

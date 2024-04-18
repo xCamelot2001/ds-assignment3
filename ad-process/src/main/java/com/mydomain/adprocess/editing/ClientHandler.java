@@ -8,33 +8,30 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final MessageProducer messageProducer;
+    private ExecutorService executorService;
 
     public ClientHandler(Socket socket, MessageProducer producer) {
         this.clientSocket = socket;
         this.messageProducer = producer;
+        this.executorService = Executors.newFixedThreadPool(10); // Configure the number of threads
     }
 
     @Override
     public void run() {
-        try (ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
-             ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream())) {
-
-            Advertisement advertisement = (Advertisement) input.readObject();
-
-            // Process the advertisement
-            Editor editor = new Editor();
-            Advertisement processedAd = editor.processAdvertisement(advertisement);
-
-            // Send processed advertisement to AccountingServer
-            sendToAccountingServer(processedAd);
-
-            // After sending to the Accounting Server, now we send it to the message queue
-            sendToMessageQueue(processedAd);
-
+        try (ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream())) {
+            @SuppressWarnings("unchecked")
+            List<Advertisement> advertisements = (List<Advertisement>) input.readObject();
+            // Process each advertisement in a separate thread
+            for (Advertisement advertisement : advertisements) {
+                executorService.submit(() -> processAdvertisement(advertisement));
+            }
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error handling client #" + this.hashCode() + ": " + e.getMessage());
         } finally {
@@ -43,7 +40,16 @@ public class ClientHandler implements Runnable {
             } catch (IOException e) {
                 System.err.println("Error closing connection for client #" + this.hashCode() + ": " + e.getMessage());
             }
+            executorService.shutdown();
         }
+    }
+
+    private void processAdvertisement(Advertisement advertisement) {
+        Editor editor = new Editor();
+        Advertisement processedAd = editor.processAdvertisement(advertisement);
+
+        sendToAccountingServer(processedAd);
+        sendToMessageQueue(processedAd);
     }
 
     private void sendToAccountingServer(Advertisement advertisement) {
@@ -54,31 +60,28 @@ public class ClientHandler implements Runnable {
             outToAccounting.writeObject(advertisement);
             System.out.println("Advertisement sent to Accounting Server for: " + advertisement.getAdvertiserName());
 
-            // Get acknowledgment from the accounting server
             String response = (String) inFromAccounting.readObject();
             System.out.println("Acknowledgment from Accounting Server: " + response);
 
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error communicating with Accounting Server: " + e.getMessage());
-            // Here you could implement a retry mechanism or queue the message for later processing.
+            // Implement retry logic or queuing for later processing if necessary.
         }
     }
 
     private void sendToMessageQueue(Advertisement processedAd) {
-        // Create AdDetails from the processed advertisement
         AdDetails adDetails = new AdDetails(
             processedAd.getAdvertiserName() + "-" + processedAd.getIssueNumber(),
             processedAd.getAdvertiserName(),
-            new Date(), // Use the current date for simplicity
+            new Date(),
             processedAd.getContent(),
             processedAd.getPlacement(),
-            false, // Payment status, false for not completed
-            "", // Graphics URL (should be set appropriately)
-            "Pending" // Status of the advertisement
+            false,
+            "", 
+            "Pending"
         );
 
         try {
-            // Send AdDetails to the message queue
             messageProducer.sendAdDetails(adDetails);
             System.out.println("Processed ad details sent to Message Queue.");
         } catch (Exception e) {
