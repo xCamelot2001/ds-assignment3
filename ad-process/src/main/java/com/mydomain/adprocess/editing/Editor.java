@@ -7,8 +7,15 @@ public class Editor {
 
     private static final Object lock = new Object();  // Lock object for synchronization
 
+    @SuppressWarnings("unused")
+    private final Scanner scanner;
+
+    public Editor(Scanner scanner) {
+        this.scanner = scanner;
+    }
+    
     // This method simulates the action of an editor reviewing an advertisement's content
-    public String reviewContent(Advertisement ad) {
+    public String reviewContent(Advertisement ad, String userInput) {
         String content = ad.getContent();
 
         synchronized(lock) {  // Synchronize access to System.in
@@ -50,7 +57,7 @@ public class Editor {
 
     // Method to process the entire advertisement
     public Advertisement processAdvertisement(Advertisement ad) {
-        String reviewedContent = reviewContent(ad);
+        String reviewedContent = reviewContent(ad, "userInput"); // replace "userInput" with the actual user input
         String adjustedPlacement = adjustPlacement(ad);
 
         // We assume that the size and price remain the same, only content and placement

@@ -73,6 +73,4 @@ public class Advertisement implements Serializable {
                 ", price=" + price +
                 '}';
     }
-
-    // Additional methods can be added here as needed.
 }
